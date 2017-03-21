@@ -196,6 +196,7 @@
     <Compile Include="App_Start\RouteConfig.cs" />
     <Compile Include="App_Start\Startup.Auth.cs" />
     <Compile Include="Controllers\AccountController.cs" />
+    <Compile Include="Controllers\AdminController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\ManageController.cs" />
     <Compile Include="Global.asax.cs">
@@ -205,9 +206,14 @@
     <Compile Include="Migrations\201703201022222_Initial migration.Designer.cs">
       <DependentUpon>201703201022222_Initial migration.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201703212002197_AddFirstAndLastNameToUser.cs" />
+    <Compile Include="Migrations\201703212002197_AddFirstAndLastNameToUser.Designer.cs">
+      <DependentUpon>201703212002197_AddFirstAndLastNameToUser.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\AccountViewModels.cs" />
-    <Compile Include="Models\IdentityModels.cs" />
+    <Compile Include="Models\ApplicationUser.cs" />
+    <Compile Include="Models\ApplicationDbContext.cs" />
     <Compile Include="Models\ManageViewModels.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Startup.cs" />
@@ -285,6 +291,9 @@
   <ItemGroup>
     <EmbeddedResource Include="Migrations\201703201022222_Initial migration.resx">
       <DependentUpon>201703201022222_Initial migration.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201703212002197_AddFirstAndLastNameToUser.resx">
+      <DependentUpon>201703212002197_AddFirstAndLastNameToUser.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>
