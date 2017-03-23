@@ -1,4 +1,5 @@
-﻿<!DOCTYPE html>
+﻿@using Microsoft.AspNet.Identity
+<!DOCTYPE html>
 <html>
 <head>
     <meta charset="utf-8" />
@@ -9,32 +10,35 @@
 
 </head>
 <body>
-    <div class="navbar navbar-inverse navbar-fixed-top">
-        <div class="container">
-            <div class="navbar-header">
-                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
-                    <span class="icon-bar"></span>
-                    <span class="icon-bar"></span>
-                    <span class="icon-bar"></span>
+
+    <div class="container">
+
+        <div class="masthead">
+            <nav class="navbar navbar-toggleable-md navbar-light bg-faded mb-3">
+                <button class="navbar-toggler navbar-toggler-right" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
                 </button>
                 @Html.ActionLink("Roomvation", "Index", "Home", new { area = "" }, new { @class = "navbar-brand" })
-            </div>
-            <div class="navbar-collapse collapse">
-                <ul class="nav navbar-nav">
-                    <li>@Html.ActionLink("Home", "Index", "Home")</li>
-                    <li>
-                        @if (Request.IsAuthenticated && User.IsInRole("Administrators"))
-                        {
-                            @Html.ActionLink("Admin panel", "Index", "Admin")
-                        }
-                    </li>
-                </ul>
-                @Html.Partial("_LoginPartial")
-            </div>
+
+                <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                    <ul class="navbar-nav mr-auto">
+                        <li class="nav-item active">
+                            @Html.ActionLink("Home", "Index", "Home", null, new { @class = "nav-link" })
+                        </li>
+                        <li class="nav-item">
+                            @if (Request.IsAuthenticated && User.IsInRole("Administrators"))
+                            {
+                                @Html.ActionLink("Admin panel", "Users", "Admin", null, new { @class = "nav-link" })
+                            }
+                        </li>
+                    </ul>
+                    @Html.Partial("_LoginPartial")
+                </div>
+            </nav>
         </div>
-    </div>
-    <div class="container body-content">
-        @RenderBody()
+        <div class="body-content">
+            @RenderBody()
+        </div>
         <hr />
         <footer>
             <p>&copy; @DateTime.Now.Year - Roomvation</p>
