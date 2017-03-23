@@ -1,5 +1,7 @@
 ﻿using Microsoft.AspNet.Identity.Owin;
 using Roomvation.Models;
+using Roomvation.Models.AdminViewModels;
+using System;
 using System.Linq;
 using System.Web;
 using System.Web.Mvc;
@@ -34,13 +36,34 @@ namespace Roomvation.Controllers
         }
 
         // GET: Admin
-        public ActionResult Index()
+        public ActionResult Users()
         {
             if (!User.IsInRole("Administrators"))
                 return RedirectToAction("Index", "Home");
 
+            var viewModel = new UsersViewModel();
             var users = _context.Users.ToList();
-            return View(users);
+            viewModel.Users = users;
+            return View(viewModel);
+        }
+
+        public ActionResult Unlock(string id)
+        {
+            var user = _context.Users.FirstOrDefault(u => u.Id == id);
+            user.LockoutEndDateUtc = null;
+            _context.SaveChanges();
+
+            return RedirectToAction(nameof(Users));
+
+        }
+
+        public ActionResult Lock(string id)
+        {
+            var user = _context.Users.FirstOrDefault(u => u.Id == id);
+            user.LockoutEndDateUtc = new DateTime(2999, 12, 31);
+            _context.SaveChanges();
+
+            return RedirectToAction(nameof(Users));
         }
     }
 }
