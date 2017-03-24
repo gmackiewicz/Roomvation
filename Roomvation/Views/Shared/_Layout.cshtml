@@ -25,12 +25,18 @@
                         <li class="nav-item active">
                             @Html.ActionLink("Home", "Index", "Home", null, new { @class = "nav-link" })
                         </li>
-                        <li class="nav-item">
-                            @if (Request.IsAuthenticated && User.IsInRole("Administrators"))
-                            {
-                                @Html.ActionLink("Admin panel", "Users", "Admin", null, new { @class = "nav-link" })
-                            }
-                        </li>
+                        @if (Request.IsAuthenticated)
+                        {
+                            <li class="nav-item">
+                                @Html.ActionLink("My reservations", "MyList", "Reservations", null, new { @class = "nav-link" })
+                            </li>
+                            <li class="nav-item">
+                                @if (User.IsInRole("Administrators"))
+                                {
+                                    @Html.ActionLink("Admin panel", "Users", "Admin", null, new { @class = "nav-link" })
+                                }
+                            </li>
+                        }
                     </ul>
                     @Html.Partial("_LoginPartial")
                 </div>
