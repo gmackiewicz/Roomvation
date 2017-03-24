@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.Owin;
 using Roomvation.Models;
+using System;
 using System.Data.Entity;
 using System.Linq;
 using System.Web;
@@ -15,7 +16,7 @@ namespace Roomvation.Controllers
 
         public ReservationsController()
         {
-            
+
         }
 
         public ReservationsController(ApplicationUserManager userManager)
@@ -42,6 +43,30 @@ namespace Roomvation.Controllers
             var currentUserId = User.Identity.GetUserId();
             var reservations = _context.Reservations.Where(r => r.Creator.Id == currentUserId).Include(r => r.Creator);
             return View(reservations.ToList());
+        }
+
+        // GET: Reservations/Create
+        [Authorize]
+        public ActionResult Create()
+        {
+            var model = new Reservation { CreatorId = User.Identity.GetUserId() };
+            return View(model);
+        }
+        
+        // POST: Reservations/Create
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult Create(Reservation reservation)
+        {
+            if (!ModelState.IsValid)
+            {
+                return View(reservation);
+            }
+
+            reservation.CreationDate = DateTime.UtcNow;
+            _context.Reservations.Add(reservation);
+            _context.SaveChanges();
+            return RedirectToAction("MyList", "Reservations");
         }
     }
 }

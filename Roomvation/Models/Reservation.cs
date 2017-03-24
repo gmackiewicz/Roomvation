@@ -8,11 +8,17 @@ namespace Roomvation.Models
     {
         public int Id { get; set; }
 
+        [Display(Name = "Meeting date")]
+        [DataType(DataType.Date)]
+        public DateTime Date { get; set; }
+
         [Display(Name = "Meeting starts")]
-        public DateTime StartDateTime { get; set; }
+        [DataType(DataType.Time)]
+        public DateTime StartTime { get; set; }
 
         [Display(Name = "Meeting ends")]
-        public DateTime EndDateTime { get; set; }
+        [DataType(DataType.Time)]
+        public DateTime EndTime { get; set; }
 
         [Required]
         [StringLength(250)]

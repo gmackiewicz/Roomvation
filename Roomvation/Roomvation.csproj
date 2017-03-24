@@ -219,6 +219,10 @@
     <Compile Include="Migrations\201703232223540_AddReservationModel.Designer.cs">
       <DependentUpon>201703232223540_AddReservationModel.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201703241452202_ChangeReservationModelProperties.cs" />
+    <Compile Include="Migrations\201703241452202_ChangeReservationModelProperties.Designer.cs">
+      <DependentUpon>201703241452202_ChangeReservationModelProperties.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\AccountViewModels.cs" />
     <Compile Include="Models\AdminViewModels\UsersViewModel.cs" />
@@ -392,6 +396,7 @@
     <Content Include="Views\Shared\_LoginPartial.cshtml" />
     <Content Include="Views\Admin\Users.cshtml" />
     <Content Include="Views\Reservations\MyList.cshtml" />
+    <Content Include="Views\Reservations\Create.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
@@ -411,6 +416,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201703232223540_AddReservationModel.resx">
       <DependentUpon>201703232223540_AddReservationModel.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201703241452202_ChangeReservationModelProperties.resx">
+      <DependentUpon>201703241452202_ChangeReservationModelProperties.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>

@@ -12,10 +12,13 @@
             @Html.DisplayNameFor(model => model.CreationDate)
         </th>
         <th>
-            @Html.DisplayNameFor(model => model.StartDateTime)
+            @Html.DisplayNameFor(model => model.Date)
         </th>
         <th>
-            @Html.DisplayNameFor(model => model.EndDateTime)
+            @Html.DisplayNameFor(model => model.StartTime)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.EndTime)
         </th>
         <th>
             @Html.DisplayNameFor(model => model.MeetingDescription)
@@ -30,10 +33,13 @@
                 @Html.DisplayFor(modelItem => item.CreationDate)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.StartDateTime)
+                @Html.DisplayFor(modelItem => item.Date)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.EndDateTime)
+                @Html.DisplayFor(modelItem => item.StartTime)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.EndTime)
             </td>
             <td>
                 @Html.DisplayFor(modelItem => item.MeetingDescription)
