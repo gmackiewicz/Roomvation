@@ -1,7 +1,9 @@
 ﻿using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.Owin;
 using Roomvation.Models;
+using Roomvation.Models.ReservationsViewModels;
 using System;
+using System.Collections.Generic;
 using System.Data.Entity;
 using System.Linq;
 using System.Web;
@@ -26,14 +28,8 @@ namespace Roomvation.Controllers
 
         public ApplicationUserManager UserManager
         {
-            get
-            {
-                return _userManager ?? HttpContext.GetOwinContext().GetUserManager<ApplicationUserManager>();
-            }
-            private set
-            {
-                _userManager = value;
-            }
+            get { return _userManager ?? HttpContext.GetOwinContext().GetUserManager<ApplicationUserManager>(); }
+            private set { _userManager = value; }
         }
 
         // GET: Reservations/MyList
@@ -49,22 +45,42 @@ namespace Roomvation.Controllers
         [Authorize]
         public ActionResult Create()
         {
-            var model = new Reservation { CreatorId = User.Identity.GetUserId() };
+            ViewBag.SelectedUser = new SelectList(_context.Users, "Id", "FullName");
+            var model = new CreateReservationViewModel
+            {
+                Reservation = new Reservation {CreatorId = User.Identity.GetUserId()},
+                Participants = new List<ApplicationUser>()
+            };
             return View(model);
         }
-        
+
         // POST: Reservations/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create(Reservation reservation)
+        public ActionResult Create(CreateReservationViewModel model)
         {
             if (!ModelState.IsValid)
             {
-                return View(reservation);
+                return View(model);
             }
 
-            reservation.CreationDate = DateTime.UtcNow;
-            _context.Reservations.Add(reservation);
+            model.Reservation.CreationDate = DateTime.UtcNow;
+            _context.Reservations.Add(model.Reservation);
+
+            var users = model.ParticipantIds;
+            var split = users.Split('|');
+
+            for (var i = 0; i < split.Length - 1; i++)
+            {
+                var participation = new Participation
+                {
+                    ReservationId = model.Reservation.Id,
+                    ParticipantId = split[i]
+                };
+                _context.ReservationParticipants.Add(participation);
+
+            }
+
             _context.SaveChanges();
             return RedirectToAction("MyList", "Reservations");
         }
