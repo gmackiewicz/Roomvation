@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
 namespace Roomvation.Models
@@ -31,6 +30,8 @@ namespace Roomvation.Models
         [Required]
         public string CreatorId { get; set; }
         public ApplicationUser Creator { get; set; }
-        public IEnumerable<ApplicationUser> Participants { get; set; }
+
+        [Display(Name = "Meeting time")]
+        public string MeetingTime => $"{StartTime:HH:mm} - {EndTime:HH:mm}";
     }
 }

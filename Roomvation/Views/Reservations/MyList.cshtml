@@ -1,34 +1,40 @@
-﻿@model IEnumerable<Roomvation.Models.Reservation>
+﻿@using Roomvation.Models
+@model Roomvation.Models.ReservationsViewModels.ReservationsListViewModel
 
 @{
     ViewBag.Title = "MyList";
+    var reservationModel = new Reservation();
 }
 
 <h2>Your reservations @Html.ActionLink("Create new", "Create", null, new { @class = "btn btn-outline-success btn-lg" })</h2>
 
 <table class="table">
     <tr>
+        <th></th>
         <th>
-            @Html.DisplayNameFor(model => model.CreationDate)
+            @Html.DisplayNameFor(model => reservationModel.CreationDate)
         </th>
         <th>
-            @Html.DisplayNameFor(model => model.Date)
+            @Html.DisplayNameFor(model => reservationModel.Date)
         </th>
         <th>
-            @Html.DisplayNameFor(model => model.StartTime)
+            @Html.DisplayNameFor(model => reservationModel.MeetingTime)
         </th>
         <th>
-            @Html.DisplayNameFor(model => model.EndTime)
+            @Html.DisplayNameFor(model => reservationModel.MeetingDescription)
         </th>
         <th>
-            @Html.DisplayNameFor(model => model.MeetingDescription)
+            @Html.DisplayNameFor(model => model.Participations)
         </th>
         <th></th>
     </tr>
-
-    @foreach (var item in Model)
+    
+    @foreach (var item in Model.Reservations)
     {
         <tr>
+            <td>
+                @Html.ActionLink("Details ", "Details", new { id = item.Id }, new { @class = "btn btn-outline-info btn-sm btn-details" })
+            </td>
             <td>
                 @Html.DisplayFor(modelItem => item.CreationDate)
             </td>
@@ -36,18 +42,23 @@
                 @Html.DisplayFor(modelItem => item.Date)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.StartTime)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.EndTime)
+                @Html.DisplayFor(modelItem => item.MeetingTime)
             </td>
             <td>
                 @Html.DisplayFor(modelItem => item.MeetingDescription)
             </td>
             <td>
-                @Html.ActionLink("Edit", "Edit", new { id = item.Id }, new { @class = "btn btn-outline-info btn-sm" }) |
-                @Html.ActionLink("Details", "Details", new { id = item.Id }, new { @class = "btn btn-outline-info btn-sm" }) |
-                @Html.ActionLink("Cancel", "Cancel", new { id = item.Id }, new { @class = "btn btn-outline-danger btn-sm" })
+                @foreach (var p in Model.Participations)
+                {
+                    if (p.ReservationId == item.Id)
+                    {
+                        @Html.Raw($"{p.Participant.FullName}")<br />
+                    }
+                }
+            </td>
+            <td>
+                @Html.ActionLink("Edit", "Edit", new { id = item.Id }, new { @class = "btn btn-outline-info btn-sm btn-edit" }) |
+                @Html.ActionLink("Cancel", "Cancel", new { id = item.Id }, new { @class = "btn btn-outline-danger btn-sm btn-cancel" })
             </td>
         </tr>
     }

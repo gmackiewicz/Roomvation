@@ -37,8 +37,21 @@ namespace Roomvation.Controllers
         public ActionResult MyList()
         {
             var currentUserId = User.Identity.GetUserId();
-            var reservations = _context.Reservations.Where(r => r.Creator.Id == currentUserId).Include(r => r.Creator);
-            return View(reservations.ToList());
+            var usersReservations = _context.Reservations
+                .Where(r => r.CreatorId == currentUserId)
+                .Include(r => r.Creator);
+
+            var participations = _context.ReservationParticipants
+                .Where(rp => usersReservations.Select(r => r.Id).Contains(rp.ReservationId))
+                .Include(rp => rp.Participant);
+
+            var model = new ReservationsListViewModel
+            {
+                Reservations = usersReservations.ToList(),
+                Participations = participations.ToList()
+            };
+
+            return View(model);
         }
 
         // GET: Reservations/Create
@@ -48,7 +61,7 @@ namespace Roomvation.Controllers
             ViewBag.SelectedUser = new SelectList(_context.Users, "Id", "FullName");
             var model = new CreateReservationViewModel
             {
-                Reservation = new Reservation {CreatorId = User.Identity.GetUserId()},
+                Reservation = new Reservation { CreatorId = User.Identity.GetUserId() },
                 Participants = new List<ApplicationUser>()
             };
             return View(model);
