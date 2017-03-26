@@ -32,6 +32,29 @@ namespace Roomvation.Controllers
             private set { _userManager = value; }
         }
 
+        // GET: Reservations/Index
+        public ActionResult Index()
+        {
+            var now = DateTime.Now;
+            var date = now.Date;
+
+            var reservations = _context.Reservations
+                .Where(r => r.Date >= date && r.StartTime >= now)
+                .Include(r => r.Creator);
+
+            var participations = _context.ReservationParticipants
+                .Where(rp => reservations.Select(r => r.Id).Contains(rp.ReservationId))
+                .Include(rp => rp.Participant);
+
+            var model = new ReservationsListViewModel
+            {
+                Reservations = reservations.ToList(),
+                Participations = participations.ToList()
+            };
+
+            return View(model);
+        }
+
         // GET: Reservations/MyList
         [Authorize]
         public ActionResult MyList()
@@ -47,7 +70,7 @@ namespace Roomvation.Controllers
 
             var model = new ReservationsListViewModel
             {
-                Reservations = usersReservations.ToList(),
+                Reservations = usersReservations.ToList().OrderBy(r => r.Date),
                 Participations = participations.ToList()
             };
 
@@ -77,21 +100,33 @@ namespace Roomvation.Controllers
                 return View(model);
             }
 
-            model.Reservation.CreationDate = DateTime.UtcNow;
+            model.Reservation.CreationDate = DateTime.Now;
+
+            model.Reservation.StartTime = model.Reservation.Date
+                .AddHours(model.Reservation.StartTime.Hour)
+                .AddMinutes(model.Reservation.StartTime.Minute);
+
+            model.Reservation.EndTime = model.Reservation.Date
+                .AddHours(model.Reservation.EndTime.Hour)
+                .AddMinutes(model.Reservation.EndTime.Minute);
+
             _context.Reservations.Add(model.Reservation);
 
             var users = model.ParticipantIds;
-            var split = users.Split('|');
-
-            for (var i = 0; i < split.Length - 1; i++)
+            if (users != null)
             {
-                var participation = new Participation
-                {
-                    ReservationId = model.Reservation.Id,
-                    ParticipantId = split[i]
-                };
-                _context.ReservationParticipants.Add(participation);
+                var split = users.Split('|');
 
+                for (var i = 0; i < split.Length - 1; i++)
+                {
+                    var participation = new Participation
+                    {
+                        ReservationId = model.Reservation.Id,
+                        ParticipantId = split[i]
+                    };
+                    _context.ReservationParticipants.Add(participation);
+
+                }
             }
 
             _context.SaveChanges();

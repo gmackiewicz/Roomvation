@@ -1,0 +1,52 @@
+﻿@using Roomvation.Models
+@model Roomvation.Models.ReservationsViewModels.ReservationsListViewModel
+
+@{
+    ViewBag.Title = "Future reservations";
+    var reservationModel = new Reservation();
+}
+
+<h2>Future reservations</h2>
+
+<table class="table">
+    <tr>
+        <th>
+            @Html.DisplayNameFor(model => reservationModel.CreationDate)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => reservationModel.Date)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => reservationModel.MeetingTime)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => reservationModel.MeetingDescription)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.Participations)
+        </th>
+    </tr>
+
+    @foreach (var item in Model.Reservations)
+    {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.Creator.FullName)<br />
+                @Html.DisplayFor(modelItem => item.CreationDate)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Date)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.MeetingTime)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.MeetingDescription)
+            </td>
+            <td>
+                @Model.Participations.Count(p => p.ReservationId == item.Id)
+            </td>
+        </tr>
+    }
+
+</table>
