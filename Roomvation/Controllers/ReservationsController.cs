@@ -100,7 +100,6 @@ namespace Roomvation.Controllers
                 return View(model);
             }
 
-            model.Reservation.CreationDate = DateTime.Now;
 
             model.Reservation.StartTime = model.Reservation.Date
                 .AddHours(model.Reservation.StartTime.Hour)
@@ -109,6 +108,20 @@ namespace Roomvation.Controllers
             model.Reservation.EndTime = model.Reservation.Date
                 .AddHours(model.Reservation.EndTime.Hour)
                 .AddMinutes(model.Reservation.EndTime.Minute);
+
+            var now = DateTime.Now;
+
+            var collisions = _context.Reservations.Any(r => r.EndTime > model.Reservation.StartTime);
+
+            if (model.Reservation.StartTime < now || collisions)
+            {
+                ViewBag.Error = "Your new reservation tries to be in the past, or collides with another reservation. Fix it!";
+                ViewBag.SelectedUser = new SelectList(_context.Users, "Id", "FullName");
+                return View(model);
+            }
+
+            model.Reservation.CreationDate = DateTime.Now;
+
 
             _context.Reservations.Add(model.Reservation);
 
