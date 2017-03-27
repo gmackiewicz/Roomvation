@@ -39,7 +39,7 @@ namespace Roomvation.Controllers
         public ActionResult Users()
         {
             if (!User.IsInRole("Administrators"))
-                return RedirectToAction("Index", "Home");
+                return RedirectToAction("Index", "Reservations");
 
             var viewModel = new UsersViewModel();
             var users = _context.Users.ToList();

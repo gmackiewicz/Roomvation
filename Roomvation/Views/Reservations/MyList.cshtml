@@ -6,7 +6,7 @@
     var reservationModel = new Reservation();
 }
 
-<h2>Your reservations @Html.ActionLink("Create new", "Create", null, new { @class = "btn btn-outline-success btn-lg" })</h2>
+<h2>Your reservations @Html.ActionLink("Create new", "Create", null, new { @class = "btn btn-outline-success" })</h2>
 
 <table class="table">
     <tr>
@@ -28,12 +28,14 @@
         </th>
         <th></th>
     </tr>
-    
+
     @foreach (var item in Model.Reservations)
     {
         <tr>
             <td>
-                @Html.ActionLink("Details ", "Details", new { id = item.Id }, new { @class = "btn btn-outline-info btn-sm btn-details" })
+                <a href="@Url.Action("Details", "Reservations")" class="btn btn-outline-info btn-sm">
+                    <i class='fa fa-search'></i>
+                </a>
             </td>
             <td>
                 @Html.DisplayFor(modelItem => item.CreationDate)
@@ -57,8 +59,12 @@
                 }
             </td>
             <td>
-                @Html.ActionLink("Edit", "Edit", new { id = item.Id }, new { @class = "btn btn-outline-info btn-sm btn-edit" }) |
-                @Html.ActionLink("Cancel", "Cancel", new { id = item.Id }, new { @class = "btn btn-outline-danger btn-sm btn-cancel" })
+                <a href="@Url.Action("Edit", "Reservations")" class="btn btn-outline-info btn-sm">
+                    <i class='fa fa-pencil'></i>
+                </a>
+                <a href="@Url.Action("Cancel", "Reservations")" class="btn btn-outline-danger btn-sm">
+                    <i class='fa fa-times'></i>
+                </a>
             </td>
         </tr>
     }

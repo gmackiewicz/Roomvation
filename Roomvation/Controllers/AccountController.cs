@@ -389,7 +389,7 @@ namespace Roomvation.Controllers
         public ActionResult LogOff()
         {
             AuthenticationManager.SignOut(DefaultAuthenticationTypes.ApplicationCookie);
-            return RedirectToAction("Index", "Home");
+            return RedirectToAction("Index", "Reservations");
         }
 
         //
@@ -446,7 +446,7 @@ namespace Roomvation.Controllers
             {
                 return Redirect(returnUrl);
             }
-            return RedirectToAction("Index", "Home");
+            return RedirectToAction("Index", "Reservations");
         }
 
         internal class ChallengeResult : HttpUnauthorizedResult
