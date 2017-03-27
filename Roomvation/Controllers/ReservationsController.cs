@@ -104,7 +104,6 @@ namespace Roomvation.Controllers
                 return View(model);
             }
 
-
             model.Reservation.StartTime = model.Reservation.Date
                 .AddHours(model.Reservation.StartTime.Hour)
                 .AddMinutes(model.Reservation.StartTime.Minute);
@@ -114,43 +113,48 @@ namespace Roomvation.Controllers
                 .AddMinutes(model.Reservation.EndTime.Minute);
 
             var now = DateTime.Now;
-
             var collisions = _context.Reservations.Any(r => r.EndTime > model.Reservation.StartTime);
 
-            if (model.Reservation.StartTime < now || collisions)
+            if (model.Reservation.StartTime < now || collisions || model.Reservation.StartTime == model.Reservation.EndTime)
             {
                 ViewBag.Error = "Your new reservation tries to be in the past, or collides with another reservation. Fix it!";
                 ViewBag.SelectedUser = new SelectList(_context.Users, "Id", "FullName");
                 return View(model);
             }
-
-            model.Reservation.CreationDate = DateTime.Now;
-
+            model.Reservation.CreationDate = now;
 
             _context.Reservations.Add(model.Reservation);
 
-            var users = model.ParticipantIds;
-            if (users != null)
-            {
-                var split = users.Split('|');
-
-                for (var i = 0; i < split.Length - 1; i++)
-                {
-                    var participation = new Participation
-                    {
-                        ReservationId = model.Reservation.Id,
-                        ParticipantId = split[i]
-                    };
-                    _context.ReservationParticipants.Add(participation);
-                }
-            }
+            var users = model.ParticipantIds + User.Identity.GetUserId();
+            AddParticipationsFor(model.Reservation.Id, users);
 
             _context.SaveChanges();
             return RedirectToAction("MyList", "Reservations");
         }
 
-        public ActionResult Edit(int id)
+        private void AddParticipationsFor(int reservationId, string userIds)
         {
+            if (userIds == null) return;
+
+            var ids = userIds.Split('|');
+            foreach (var id in ids)
+            {
+                var participation = new Participation
+                {
+                    ReservationId = reservationId,
+                    ParticipantId = id
+                };
+                _context.ReservationParticipants.Add(participation);
+            }
+        }
+
+        public ActionResult Edit(int? id)
+        {
+            if (id == null)
+            {
+                return RedirectToAction("MyList", "Reservations");
+            }
+
             var reservationToEdit = _context.Reservations.FirstOrDefault(r => r.Id == id);
             if (reservationToEdit == null || reservationToEdit.StartTime < DateTime.Now)
             {
