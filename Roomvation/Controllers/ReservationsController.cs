@@ -174,5 +174,19 @@ namespace Roomvation.Controllers
 
             return View(model);
         }
+
+        public ActionResult Cancel(int? id)
+        {
+            if (id == null)
+            {
+                return RedirectToAction("MyList", "Reservations");
+            }
+
+            var reservationToCancel = _context.Reservations.FirstOrDefault(r => r.Id == id);
+            _context.Reservations.Remove(reservationToCancel);
+            _context.SaveChanges();
+
+            return RedirectToAction("MyList", "Reservations");
+        }
     }
 }
