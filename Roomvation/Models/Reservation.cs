@@ -9,6 +9,7 @@ namespace Roomvation.Models
 
         [Display(Name = "Meeting date")]
         [DataType(DataType.Date)]
+        [DisplayFormat(ApplyFormatInEditMode = true, DataFormatString = "{0:yyyy-MM-dd}")]
         public DateTime Date { get; set; }
 
         [Display(Name = "Meeting starts")]

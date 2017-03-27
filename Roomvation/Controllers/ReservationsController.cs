@@ -84,7 +84,11 @@ namespace Roomvation.Controllers
             ViewBag.SelectedUser = new SelectList(_context.Users, "Id", "FullName");
             var model = new CreateReservationViewModel
             {
-                Reservation = new Reservation { CreatorId = User.Identity.GetUserId() },
+                Reservation = new Reservation
+                {
+                    CreatorId = User.Identity.GetUserId(),
+                    Date = DateTime.Today
+                },
                 Participants = new List<ApplicationUser>()
             };
             return View(model);
@@ -152,12 +156,15 @@ namespace Roomvation.Controllers
             {
                 return RedirectToAction("MyList", "Reservations");
             }
-            var participants = _context.ReservationParticipants.Where(rp => rp.ReservationId == id).Select(rp=>rp.Participant).ToList();
+            var participants = _context.ReservationParticipants.Where(rp => rp.ReservationId == id).Select(rp => rp.Participant).ToList();
             var model = new CreateReservationViewModel
             {
                 Reservation = reservationToEdit,
                 Participants = participants
             };
+
+            model.Reservation.Date = new DateTime(model.Reservation.Date.Year, model.Reservation.Date.Month,
+                model.Reservation.Date.Day);
 
             ViewBag.SelectedUser = new SelectList(_context.Users, "Id", "FullName");
 
