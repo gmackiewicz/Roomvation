@@ -1,0 +1,90 @@
+﻿@using Roomvation.Migrations
+@model Roomvation.Models.ReservationsViewModels.CreateReservationViewModel
+
+@{
+    ViewBag.Title = "Edit";
+}
+
+<h2>Edit</h2>
+
+
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+
+    <div class="form-horizontal">
+        <h4>Reservation</h4>
+        <hr />
+        @ViewBag.Error
+        @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+        @Html.TextBoxFor(m => m.Reservation.CreatorId, new { type = "hidden" })
+        <div class="form-group">
+            @Html.LabelFor(model => model.Reservation.Date, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.EditorFor(model => model.Reservation.Date, new { htmlAttributes = new { @class = "form-control" } })
+                @Html.ValidationMessageFor(model => model.Reservation.Date, "", new { @class = "text-danger" })
+            </div>
+        </div>
+        <div class="form-group">
+            @Html.LabelFor(model => model.Reservation.StartTime, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.EditorFor(model => model.Reservation.StartTime, new { htmlAttributes = new { @class = "form-control" } })
+                @Html.ValidationMessageFor(model => model.Reservation.StartTime, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.Reservation.EndTime, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.EditorFor(model => model.Reservation.EndTime, new { htmlAttributes = new { @class = "form-control" } })
+                @Html.ValidationMessageFor(model => model.Reservation.EndTime, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.Reservation.MeetingDescription, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.EditorFor(model => model.Reservation.MeetingDescription, new { htmlAttributes = new { @class = "form-control" } })
+                @Html.ValidationMessageFor(model => model.Reservation.MeetingDescription, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="form-group col">
+
+                @Html.Label("Available users", new {@class = "control-label col-md-3"})
+                <div class="col-md-10">
+                    @Html.DropDownList("SelectedUser", null, htmlAttributes: new {@class = "form-control", id = "user-select"})
+                    @Html.ValidationMessageFor(model => model.SelectedUser, "", new {@class = "text-danger"})
+
+                    <input type="button" id="add-user" value="Add" class="btn btn-outline-default btn-sm"/>
+                </div>
+            </div>
+
+            <div class="form-group col">
+                @Html.LabelFor(model => model.Participants, null, htmlAttributes: new { @class = "control-label col-md-2" })
+                <div class="col-md-10">
+                    @Html.TextBoxFor(m => m.ParticipantIds, new { type = "hidden", id = "hidden-ids" })
+                    @if (Model.Participants != null)
+                    {
+                        foreach (var u in Model.Participants)
+                        {
+                            @Html.Raw($"{u.FullName}")<br/>
+                        }
+                    }
+                    <div id="currently-added"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <div class="col-md-offset-2 col-md-10">
+                <input type="submit" value="Create" class="btn btn-default" />
+            </div>
+        </div>
+    </div>
+}
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+}

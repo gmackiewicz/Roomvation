@@ -59,12 +59,15 @@
                 }
             </td>
             <td>
-                <a href="@Url.Action("Edit", "Reservations")" class="btn btn-outline-info btn-sm">
-                    <i class='fa fa-pencil'></i>
-                </a>
-                <a href="@Url.Action("Cancel", "Reservations")" class="btn btn-outline-danger btn-sm">
-                    <i class='fa fa-times'></i>
-                </a>
+                @if (item.StartTime > DateTime.Now)
+                {
+                    <a href="@Url.Action("Edit", "Reservations", new { id = item.Id })" class="btn btn-outline-info btn-sm">
+                        <i class='fa fa-pencil'></i>
+                    </a>
+                    <a href="@Url.Action("Cancel", "Reservations")" class="btn btn-outline-danger btn-sm">
+                        <i class='fa fa-times'></i>
+                    </a>
+                }
             </td>
         </tr>
     }

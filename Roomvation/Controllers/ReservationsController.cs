@@ -138,12 +138,30 @@ namespace Roomvation.Controllers
                         ParticipantId = split[i]
                     };
                     _context.ReservationParticipants.Add(participation);
-
                 }
             }
 
             _context.SaveChanges();
             return RedirectToAction("MyList", "Reservations");
+        }
+
+        public ActionResult Edit(int id)
+        {
+            var reservationToEdit = _context.Reservations.FirstOrDefault(r => r.Id == id);
+            if (reservationToEdit == null || reservationToEdit.StartTime < DateTime.Now)
+            {
+                return RedirectToAction("MyList", "Reservations");
+            }
+            var participants = _context.ReservationParticipants.Where(rp => rp.ReservationId == id).Select(rp=>rp.Participant).ToList();
+            var model = new CreateReservationViewModel
+            {
+                Reservation = reservationToEdit,
+                Participants = participants
+            };
+
+            ViewBag.SelectedUser = new SelectList(_context.Users, "Id", "FullName");
+
+            return View(model);
         }
     }
 }
