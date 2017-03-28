@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Data.Entity;
 using System.Data.Entity.Migrations;
+using System.Data.Entity.Validation;
 using System.Linq;
 using System.Net;
 using System.Web;
@@ -195,7 +196,7 @@ namespace Roomvation.Controllers
 
             return View(model);
         }
-        
+
         public ActionResult Cancel(int id = 0)
         {
             var user = User.Identity.GetUserId();
@@ -236,7 +237,7 @@ namespace Roomvation.Controllers
             var dateError = CheckDateForErrors(id, startTime, endTime);
             if (dateError)
             {
-                Response.StatusCode = (int)HttpStatusCode.BadRequest;
+                Response.StatusCode = (int)HttpStatusCode.Conflict;
                 return Json("This date causes conflicts with another reservation.");
             }
 
@@ -246,8 +247,33 @@ namespace Roomvation.Controllers
             _context.Reservations.AddOrUpdate(reservation);
             _context.SaveChanges();
 
-            Response.StatusCode = (int)HttpStatusCode.Accepted;
+            Response.StatusCode = (int)HttpStatusCode.OK;
             return Json("Reservation date has been successfully changed.");
+        }
+
+        [HttpPost]
+        public ActionResult ChangeDescription(int id, string description)
+        {
+            var reservation = _context.Reservations.FirstOrDefault(r => r.Id == id);
+            if (reservation == null)
+            {
+                Response.StatusCode = (int)HttpStatusCode.BadRequest;
+                return Json("Couldn't find that reservation.");
+            }
+            try
+            {
+                reservation.MeetingDescription = description;
+                _context.Reservations.AddOrUpdate(reservation);
+                _context.SaveChanges();
+            }
+            catch (DbEntityValidationException exception)
+            {
+                Response.StatusCode = (int)HttpStatusCode.Forbidden;
+                return Json("An error occured. Provided description is too long.");
+            }
+
+            Response.StatusCode = (int)HttpStatusCode.OK;
+            return Json("Meeting description has been successfully changed.");
         }
 
         private bool CheckDateForErrors(int id, DateTime startTime, DateTime endTime)
