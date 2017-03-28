@@ -1,0 +1,116 @@
+﻿@using Microsoft.AspNet.Identity
+@model Roomvation.Models.ReservationsViewModels.ReservationDetailsViewModel
+@{
+    ViewBag.Title = "Reservation details";
+}
+<h3>Reservation details</h3>
+<h6>created: @Html.DisplayFor(m => m.Reservation.CreationDate)</h6>
+<h6>by: @Html.DisplayFor(m => m.Reservation.Creator.FullName)</h6>
+<hr />
+
+
+<div class="d-flex align-items-center flex-column">
+    <h4>
+        @Html.DisplayNameFor(m => m.Reservation.Date)
+        <button type="button" class="btn btn-primary btn-sm" data-toggle="modal" data-target="#dateModal">change</button>
+    </h4>
+    <h6 id="reservation-date">@Html.DisplayFor(m => m.Reservation.Date)</h6>
+    <h4 class="mt-3">@Html.DisplayNameFor(m => m.Reservation.MeetingTime)</h4>
+    <h6>@Html.DisplayFor(m => m.Reservation.StartTime) - @Html.DisplayFor(m => m.Reservation.EndTime)</h6>
+</div>
+<hr />
+
+<div class="row">
+    <div class="col-8">
+        <h5>@Html.DisplayNameFor(m => m.Reservation.MeetingDescription)</h5>
+        <hr />
+        @Html.DisplayFor(m => m.Reservation.MeetingDescription)
+    </div>
+    <div class="col-4">
+        <h5>
+            Participants:
+            <a href="@Url.Action("AddParticipant", "Reservations", new { rid = Model.Reservation.Id })" cl class="btn btn-outline-success btn-sm">
+                add <i class='fa fa-plus'></i>
+            </a>
+        </h5>
+        <hr />
+        <ul class="list-unstyled">
+            @foreach (var u in Model.Participants)
+            {
+                <li>
+                    @if (u.Id != User.Identity.GetUserId())
+                    {
+                        <a href="@Url.Action("RemoveParticipant", "Reservations", new { rid = Model.Reservation.Id, pid = u.Id })" class="btn btn-outline-danger btn-sm" onclick="return confirm('Are you sure, you want to remove this participant?');">
+                            <i class='fa fa-times'></i>
+                        </a>
+                    }
+                    @Html.DisplayFor(m => u.FullName)
+                </li>
+            }
+        </ul>
+    </div>
+</div>
+<hr />
+<p>
+    @Html.ActionLink("Back to List", "Index")
+</p>
+
+<div class="modal fade" id="dateModal" tabindex="-1" role="dialog" aria-labelledby="dateModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="dateModalLabel">Change date</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+
+            <div id="change-date-alert" class="alert alert-danger hidden m-3" role="alert"></div>
+            <div class="modal-body">
+                <form>
+                    <div class="form-group">
+                        <label class="form-control-label">New date:</label>
+                        <input class="form-control" id="new-date" type="date" value="@Model.Reservation.Date.ToString("yyyy-MM-dd")">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-control-label">Start time:</label>
+                        <input class="form-control" id="new-start" type="time" value="@Model.Reservation.StartTime.ToString("HH:mm")">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-control-label">End time:</label>
+                        <input class="form-control" id="new-end" type="time" value="@Model.Reservation.EndTime.ToString("HH:mm")">
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" onclick="ChangeDate(@Model.Reservation.Id);">Save</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script>
+    function ChangeDate(id) {
+        var date = $("#new-date").val();
+        var start = $("#new-start").val();
+        var end = $("#new-end").val();
+        $.ajax({
+            type: "POST",
+            url: '/Reservations/ChangeDate',
+            data: { id: id, newDate: date, newStart: start, newEnd: end },
+            success: function () {
+                $("#dateModal").modal('hide');
+                setTimeout(function () {
+                    location.reload();
+                }, 1000);
+            },
+            error: function (response) {
+                $("#change-date-alert").removeClass("hidden").text(response.responseText);
+            }
+        });
+    }
+</script>

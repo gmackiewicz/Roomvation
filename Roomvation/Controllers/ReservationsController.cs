@@ -5,7 +5,9 @@ using Roomvation.Models.ReservationsViewModels;
 using System;
 using System.Collections.Generic;
 using System.Data.Entity;
+using System.Data.Entity.Migrations;
 using System.Linq;
+using System.Net;
 using System.Web;
 using System.Web.Mvc;
 
@@ -113,9 +115,8 @@ namespace Roomvation.Controllers
                 .AddMinutes(model.Reservation.EndTime.Minute);
 
             var now = DateTime.Now;
-            var collisions = _context.Reservations.Any(r => r.EndTime > model.Reservation.StartTime);
-
-            if (model.Reservation.StartTime < now || collisions || model.Reservation.StartTime == model.Reservation.EndTime)
+            var dateError = CheckDateForErrors(0, model.Reservation.Date, model.Reservation.StartTime, model.Reservation.EndTime);
+            if (dateError)
             {
                 ViewBag.Error = "Your new reservation tries to be in the past, or collides with another reservation. Fix it!";
                 ViewBag.SelectedUser = new SelectList(_context.Users, "Id", "FullName");
@@ -148,6 +149,26 @@ namespace Roomvation.Controllers
             }
         }
 
+
+        public ActionResult Details(int id = 0)
+        {
+            var userId = User.Identity.GetUserId();
+            var reservation = _context.Reservations.FirstOrDefault(r => r.Id == id && r.Creator.Id == userId);
+            if (reservation == null)
+            {
+                return RedirectToAction("MyList", "Reservations");
+            }
+
+            var participants = _context.ReservationParticipants.Where(rp => rp.ReservationId == id).Select(rp => rp.Participant).ToList();
+            var model = new ReservationDetailsViewModel
+            {
+                Reservation = reservation,
+                Participants = participants
+            };
+
+            return View(model);
+        }
+
         public ActionResult Edit(int? id)
         {
             if (id == null)
@@ -175,6 +196,7 @@ namespace Roomvation.Controllers
             return View(model);
         }
 
+        [HttpPost]
         public ActionResult Cancel(int? id)
         {
             if (id == null)
@@ -187,6 +209,62 @@ namespace Roomvation.Controllers
             _context.SaveChanges();
 
             return RedirectToAction("MyList", "Reservations");
+        }
+
+        [HttpPost]
+        public ActionResult ChangeDate(int id, string newDate, string newStart, string newEnd)
+        {
+            var reservation = _context.Reservations.FirstOrDefault(r => r.Id == id);
+            if (reservation == null)
+            {
+                Response.StatusCode = (int)HttpStatusCode.BadRequest;
+                return Json("Couldn't find that reservation.");
+            }
+
+            var date = DateTime.Parse(newDate).Date;
+            var start = DateTime.Parse(newStart);
+            var end = DateTime.Parse(newEnd);
+            var startTime = date
+                .AddHours(start.Hour)
+                .AddMinutes(start.Minute);
+
+            var endTime = date
+                .AddHours(end.Hour)
+                .AddMinutes(end.Minute);
+
+            var dateError = CheckDateForErrors(id, date, startTime, endTime);
+            if (dateError)
+            {
+                Response.StatusCode = (int)HttpStatusCode.BadRequest;
+                return Json("This date causes conflicts with another reservation.");
+            }
+
+            reservation.Date = date;
+            reservation.StartTime = startTime;
+            reservation.EndTime = endTime;
+            _context.Reservations.AddOrUpdate(reservation);
+            _context.SaveChanges();
+
+            Response.StatusCode = (int)HttpStatusCode.Accepted;
+            return Json("Reservation date has been successfully changed.");
+        }
+
+        private bool CheckDateForErrors(int id, DateTime date, DateTime startTime, DateTime endTime)
+        {
+            var now = DateTime.Now.Date;
+            if (startTime == endTime)
+            {
+                return true;
+            }
+
+            var result =
+                _context.Reservations.Any(
+                    r =>
+                        r.Id != id && (
+                        date < now ||
+                        (startTime >= r.StartTime && startTime < r.EndTime) ||
+                        (startTime <= r.StartTime && endTime > r.StartTime)));
+            return result;
         }
     }
 }

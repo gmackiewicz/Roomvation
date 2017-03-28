@@ -33,7 +33,7 @@
     {
         <tr>
             <td>
-                <a href="@Url.Action("Details", "Reservations")" class="btn btn-outline-info btn-sm">
+                <a href="@Url.Action("Details", "Reservations", new { id = item.Id })" class="btn btn-outline-info btn-sm">
                     <i class='fa fa-search'></i>
                 </a>
             </td>
@@ -41,13 +41,13 @@
                 @Html.DisplayFor(modelItem => item.CreationDate)
             </td>
             <td>
-                @item.Date.ToString("dd.MM.yyyy")
+                @Html.DisplayFor(modelItem => item.Date)
             </td>
             <td>
                 @Html.DisplayFor(modelItem => item.MeetingTime)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.MeetingDescription)
+                @item.MeetingDescription.Substring(0, Math.Min(item.MeetingDescription.Length, 50))
             </td>
             <td>
                 @foreach (var p in Model.Participations)
