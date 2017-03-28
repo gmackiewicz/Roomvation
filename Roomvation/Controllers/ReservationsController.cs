@@ -238,7 +238,7 @@ namespace Roomvation.Controllers
             if (dateError)
             {
                 Response.StatusCode = (int)HttpStatusCode.Conflict;
-                return Json("This date causes conflicts with another reservation.");
+                return Json("Provided date or time caused conlicts. Check if it is not the past date.");
             }
 
             reservation.Date = date;
