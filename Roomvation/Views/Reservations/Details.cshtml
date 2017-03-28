@@ -12,7 +12,10 @@
 <div class="d-flex align-items-center flex-column">
     <h4>
         @Html.DisplayNameFor(m => m.Reservation.Date)
-        <button type="button" class="btn btn-primary btn-sm" data-toggle="modal" data-target="#dateModal">change</button>
+        @if (Model.Reservation.StartTime > DateTime.Now)
+        {
+            <button type="button" class="btn btn-primary btn-sm" data-toggle="modal" data-target="#dateModal">change</button>
+        }
     </h4>
     <h6 id="reservation-date">@Html.DisplayFor(m => m.Reservation.Date)</h6>
     <h4 class="mt-3">@Html.DisplayNameFor(m => m.Reservation.MeetingTime)</h4>
@@ -29,16 +32,20 @@
     <div class="col-4">
         <h5>
             Participants:
-            <a href="@Url.Action("AddParticipant", "Reservations", new { rid = Model.Reservation.Id })" cl class="btn btn-outline-success btn-sm">
-                add <i class='fa fa-plus'></i>
-            </a>
+
+            @if (Model.Reservation.StartTime > DateTime.Now)
+            {
+                <a href="@Url.Action("AddParticipant", "Reservations", new {rid = Model.Reservation.Id})" cl class="btn btn-outline-success btn-sm">
+                    add <i class='fa fa-plus'></i>
+                </a>
+            }
         </h5>
         <hr />
         <ul class="list-unstyled">
             @foreach (var u in Model.Participants)
             {
                 <li>
-                    @if (u.Id != User.Identity.GetUserId())
+                    @if (u.Id != User.Identity.GetUserId() && Model.Reservation.StartTime > DateTime.Now)
                     {
                         <a href="@Url.Action("RemoveParticipant", "Reservations", new { rid = Model.Reservation.Id, pid = u.Id })" class="btn btn-outline-danger btn-sm" onclick="return confirm('Are you sure, you want to remove this participant?');">
                             <i class='fa fa-times'></i>

@@ -115,7 +115,7 @@ namespace Roomvation.Controllers
                 .AddMinutes(model.Reservation.EndTime.Minute);
 
             var now = DateTime.Now;
-            var dateError = CheckDateForErrors(0, model.Reservation.Date, model.Reservation.StartTime, model.Reservation.EndTime);
+            var dateError = CheckDateForErrors(0, model.Reservation.StartTime, model.Reservation.EndTime);
             if (dateError)
             {
                 ViewBag.Error = "Your new reservation tries to be in the past, or collides with another reservation. Fix it!";
@@ -195,17 +195,17 @@ namespace Roomvation.Controllers
 
             return View(model);
         }
-
-        [HttpPost]
-        public ActionResult Cancel(int? id)
+        
+        public ActionResult Cancel(int id = 0)
         {
-            if (id == null)
+            var user = User.Identity.GetUserId();
+            var reservation = _context.Reservations.Where(r => r.Id == id).Include(r => r.Creator).FirstOrDefault();
+            if (reservation == null || reservation.Creator.Id != user)
             {
                 return RedirectToAction("MyList", "Reservations");
             }
 
-            var reservationToCancel = _context.Reservations.FirstOrDefault(r => r.Id == id);
-            _context.Reservations.Remove(reservationToCancel);
+            _context.Reservations.Remove(reservation);
             _context.SaveChanges();
 
             return RedirectToAction("MyList", "Reservations");
@@ -224,6 +224,7 @@ namespace Roomvation.Controllers
             var date = DateTime.Parse(newDate).Date;
             var start = DateTime.Parse(newStart);
             var end = DateTime.Parse(newEnd);
+
             var startTime = date
                 .AddHours(start.Hour)
                 .AddMinutes(start.Minute);
@@ -232,7 +233,7 @@ namespace Roomvation.Controllers
                 .AddHours(end.Hour)
                 .AddMinutes(end.Minute);
 
-            var dateError = CheckDateForErrors(id, date, startTime, endTime);
+            var dateError = CheckDateForErrors(id, startTime, endTime);
             if (dateError)
             {
                 Response.StatusCode = (int)HttpStatusCode.BadRequest;
@@ -249,21 +250,21 @@ namespace Roomvation.Controllers
             return Json("Reservation date has been successfully changed.");
         }
 
-        private bool CheckDateForErrors(int id, DateTime date, DateTime startTime, DateTime endTime)
+        private bool CheckDateForErrors(int id, DateTime startTime, DateTime endTime)
         {
-            var now = DateTime.Now.Date;
-            if (startTime == endTime)
+            var now = DateTime.Now;
+            if (startTime >= endTime || startTime < now)
             {
                 return true;
             }
 
+            var other = _context.Reservations.Where(r => r.Id != id).ToList();
+
             var result =
-                _context.Reservations.Any(
+                other.Any(
                     r =>
-                        r.Id != id && (
-                        date < now ||
                         (startTime >= r.StartTime && startTime < r.EndTime) ||
-                        (startTime <= r.StartTime && endTime > r.StartTime)));
+                        (startTime <= r.StartTime && endTime > r.StartTime));
             return result;
         }
     }
