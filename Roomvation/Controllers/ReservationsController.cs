@@ -127,7 +127,7 @@ namespace Roomvation.Controllers
             AddParticipationsFor(model.Id, users);
 
             _context.SaveChanges();
-            return RedirectToAction("MyList", "Reservations");
+            return RedirectToAction("Details", "Reservations", new { id = model.Id });
         }
 
         private void AddParticipationsFor(int reservationId, string userIds)
