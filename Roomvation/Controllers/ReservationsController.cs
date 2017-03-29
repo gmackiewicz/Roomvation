@@ -84,51 +84,47 @@ namespace Roomvation.Controllers
         [Authorize]
         public ActionResult Create()
         {
-            ViewBag.SelectedUser = new SelectList(_context.Users, "Id", "FullName");
-            var model = new CreateReservationViewModel
+            var model = new Reservation
             {
-                Reservation = new Reservation
-                {
-                    CreatorId = User.Identity.GetUserId(),
-                    Date = DateTime.Today
-                },
-                Participants = new List<ApplicationUser>()
+                CreatorId = User.Identity.GetUserId(),
+                Date = DateTime.Today
             };
+
             return View(model);
         }
 
         // POST: Reservations/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create(CreateReservationViewModel model)
+        public ActionResult Create(Reservation model)
         {
             if (!ModelState.IsValid)
             {
                 return View(model);
             }
 
-            model.Reservation.StartTime = model.Reservation.Date
-                .AddHours(model.Reservation.StartTime.Hour)
-                .AddMinutes(model.Reservation.StartTime.Minute);
+            model.StartTime = model.Date
+                .AddHours(model.StartTime.Hour)
+                .AddMinutes(model.StartTime.Minute);
 
-            model.Reservation.EndTime = model.Reservation.Date
-                .AddHours(model.Reservation.EndTime.Hour)
-                .AddMinutes(model.Reservation.EndTime.Minute);
+            model.EndTime = model.Date
+                .AddHours(model.EndTime.Hour)
+                .AddMinutes(model.EndTime.Minute);
 
             var now = DateTime.Now;
-            var dateError = CheckDateForErrors(0, model.Reservation.StartTime, model.Reservation.EndTime);
+            var dateError = CheckDateForErrors(0, model.StartTime, model.EndTime);
             if (dateError)
             {
                 ViewBag.Error = "Your new reservation tries to be in the past, or collides with another reservation. Fix it!";
                 ViewBag.SelectedUser = new SelectList(_context.Users, "Id", "FullName");
                 return View(model);
             }
-            model.Reservation.CreationDate = now;
+            model.CreationDate = now;
 
-            _context.Reservations.Add(model.Reservation);
+            _context.Reservations.Add(model);
 
-            var users = model.ParticipantIds + User.Identity.GetUserId();
-            AddParticipationsFor(model.Reservation.Id, users);
+            var users = User.Identity.GetUserId();
+            AddParticipationsFor(model.Id, users);
 
             _context.SaveChanges();
             return RedirectToAction("MyList", "Reservations");

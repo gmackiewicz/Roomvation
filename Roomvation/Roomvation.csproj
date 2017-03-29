@@ -230,7 +230,6 @@
     <Compile Include="Models\ManageViewModels.cs" />
     <Compile Include="Models\Reservation.cs" />
     <Compile Include="Models\Participation.cs" />
-    <Compile Include="Models\ReservationsViewModels\CreateReservationViewModel.cs" />
     <Compile Include="Models\ReservationsViewModels\ReservationDetailsViewModel.cs" />
     <Compile Include="Models\ReservationsViewModels\ReservationsListViewModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
