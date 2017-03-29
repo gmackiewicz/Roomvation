@@ -200,14 +200,25 @@ namespace Roomvation.Controllers
                 Response.StatusCode = (int)HttpStatusCode.BadRequest;
                 return Json("Couldn't find that reservation.");
             }
+            DateTime date;
+            DateTime start;
+            DateTime end;
 
-            var date = DateTime.Parse(newDate).Date;
-            var start = DateTime.Parse(newStart);
-            var end = DateTime.Parse(newEnd);
+            try
+            {
+                date = DateTime.Parse(newDate).Date;
+                start = DateTime.Parse(newStart);
+                end = DateTime.Parse(newEnd);
+            }
+            catch (FormatException ex)
+            {
+                Response.StatusCode = (int)HttpStatusCode.InternalServerError;
+                return Json("Input is incorrect.");
+            }
 
             var startTime = date
-                .AddHours(start.Hour)
-                .AddMinutes(start.Minute);
+                    .AddHours(start.Hour)
+                    .AddMinutes(start.Minute);
 
             var endTime = date
                 .AddHours(end.Hour)
@@ -296,7 +307,7 @@ namespace Roomvation.Controllers
                         (startTime <= r.StartTime && endTime > r.StartTime));
             return result;
         }
-        
+
         public ActionResult RemoveParticipant(int reservationId, string userId)
         {
             var participation = _context.ReservationParticipants
