@@ -15,7 +15,10 @@
     <div class="form-horizontal">
         <h4>Reservation</h4>
         <hr />
-        @ViewBag.Error
+        @if (ViewBag.Error != null)
+        {
+            <div class="alert alert-danger" role="alert">@ViewBag.Error</div>
+        }
         @Html.ValidationSummary(true, "", new { @class = "text-danger" })
         @Html.TextBoxFor(m => m.CreatorId, new { type = "hidden" })
         <div class="form-group">
