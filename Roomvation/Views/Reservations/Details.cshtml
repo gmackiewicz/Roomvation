@@ -1,6 +1,4 @@
-﻿@using System.Net.Configuration
-@using Microsoft.AspNet.Identity
-@model Roomvation.Models.ReservationsViewModels.ReservationDetailsViewModel
+﻿@model Roomvation.Models.ReservationsViewModels.ReservationDetailsViewModel
 @{
     ViewBag.Title = "Reservation details";
 }
@@ -9,18 +7,27 @@
 <h6>by: @Html.DisplayFor(m => m.Reservation.Creator.FullName)</h6>
 <hr />
 
+<div class="row">
+    <div class="d-flex align-items-center flex-column col-8">
+        <h4>@Html.DisplayNameFor(m => m.Reservation.Date)</h4>
+        <h6 id="reservation-date">@Html.DisplayFor(m => m.Reservation.Date)</h6>
+        <h4 class="mt-3">@Html.DisplayNameFor(m => m.Reservation.MeetingTime)</h4>
+        <h6>@Html.DisplayFor(m => m.Reservation.StartTime) - @Html.DisplayFor(m => m.Reservation.EndTime)</h6>
+    </div>
 
-<div class="d-flex align-items-center flex-column">
-    <h4>
-        @Html.DisplayNameFor(m => m.Reservation.Date)
+    <div class="d-flex align-items-center flex-column col-4">
         @if (Model.Reservation.StartTime > DateTime.Now)
-        {
-            <button type="button" class="btn btn-primary btn-sm" data-toggle="modal" data-target="#dateModal">change</button>
+            {
+            <button type="button" class="btn btn-outline-primary mt-3" data-toggle="modal" data-target="#dateModal">
+                <i class='fa fa-pencil'></i> change date, time
+            </button>
         }
-    </h4>
-    <h6 id="reservation-date">@Html.DisplayFor(m => m.Reservation.Date)</h6>
-    <h4 class="mt-3">@Html.DisplayNameFor(m => m.Reservation.MeetingTime)</h4>
-    <h6>@Html.DisplayFor(m => m.Reservation.StartTime) - @Html.DisplayFor(m => m.Reservation.EndTime)</h6>
+
+        <a href="@Url.Action("Cancel", "Reservations", new { id = Model.Reservation.Id })" class="btn btn-outline-danger mt-3"
+           onclick="return confirm('Are you sure, you want to cancel this reservation?');">
+            <i class='fa fa-times'></i> cancel reservation
+        </a>
+    </div>
 </div>
 <hr />
 
