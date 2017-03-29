@@ -50,7 +50,7 @@ namespace Roomvation.Controllers
 
             var model = new ReservationsListViewModel
             {
-                Reservations = reservations.ToList(),
+                Reservations = reservations.OrderBy(r => r.StartTime).ToList(),
                 Participations = participations.ToList()
             };
 
