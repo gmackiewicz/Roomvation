@@ -6,5 +6,6 @@ namespace Roomvation.Models.ReservationsViewModels
     {
         public Reservation Reservation { get; set; }
         public List<ApplicationUser> Participants { get; set; }
+        public List<ApplicationUser> AvailableUsers { get; set; }
     }
 }

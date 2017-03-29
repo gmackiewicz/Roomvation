@@ -3,7 +3,6 @@ using Microsoft.AspNet.Identity.Owin;
 using Roomvation.Models;
 using Roomvation.Models.ReservationsViewModels;
 using System;
-using System.Collections.Generic;
 using System.Data.Entity;
 using System.Data.Entity.Migrations;
 using System.Data.Entity.Validation;
@@ -156,11 +155,22 @@ namespace Roomvation.Controllers
                 return RedirectToAction("MyList", "Reservations");
             }
 
-            var participants = _context.ReservationParticipants.Where(rp => rp.ReservationId == id).Select(rp => rp.Participant).ToList();
+            var participants = _context.ReservationParticipants
+                .Where(rp => rp.ReservationId == id)
+                .Select(rp => rp.Participant)
+                .ToList();
+
+            var participantIds = participants.Select(p => p.Id).ToList();
+            var available = _context.Users
+                .Where(u => !participantIds.Contains(u.Id) && u.LockoutEndDateUtc == null)
+                .OrderBy(u => u.LastName)
+                .ToList();
+
             var model = new ReservationDetailsViewModel
             {
                 Reservation = reservation,
-                Participants = participants
+                Participants = participants,
+                AvailableUsers = available
             };
 
             return View(model);
@@ -245,6 +255,30 @@ namespace Roomvation.Controllers
             return Json("Meeting description has been successfully changed.");
         }
 
+        [HttpPost]
+        public ActionResult AddParticipant(int id, string participant)
+        {
+            var reservation = _context.Reservations.FirstOrDefault(r => r.Id == id);
+            var user = _context.Users.FirstOrDefault(u => u.Id == participant);
+            if (reservation == null || user == null)
+            {
+                Response.StatusCode = (int)HttpStatusCode.BadRequest;
+                return Json("Couldn't find that reservation or user.");
+            }
+
+            var participation = new Participation
+            {
+                ReservationId = id,
+                ParticipantId = participant
+            };
+
+            _context.ReservationParticipants.AddOrUpdate(participation);
+            _context.SaveChanges();
+
+            Response.StatusCode = (int)HttpStatusCode.OK;
+            return Json("User has been successfully added to the meeting.");
+        }
+
         private bool CheckDateForErrors(int id, DateTime startTime, DateTime endTime)
         {
             var now = DateTime.Now;
@@ -261,6 +295,19 @@ namespace Roomvation.Controllers
                         (startTime >= r.StartTime && startTime < r.EndTime) ||
                         (startTime <= r.StartTime && endTime > r.StartTime));
             return result;
+        }
+        
+        public ActionResult RemoveParticipant(int reservationId, string userId)
+        {
+            var participation = _context.ReservationParticipants
+                .FirstOrDefault(rp => rp.ReservationId == reservationId && rp.ParticipantId == userId);
+            if (participation != null)
+            {
+                _context.ReservationParticipants.Remove(participation);
+                _context.SaveChanges();
+            }
+
+            return RedirectToAction("Details", new { id = reservationId });
         }
     }
 }

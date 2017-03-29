@@ -1,4 +1,5 @@
-﻿@using Microsoft.AspNet.Identity
+﻿@using System.Net.Configuration
+@using Microsoft.AspNet.Identity
 @model Roomvation.Models.ReservationsViewModels.ReservationDetailsViewModel
 @{
     ViewBag.Title = "Reservation details";
@@ -38,26 +39,27 @@
     <div class="col-4">
         <h5>
             Participants:
-
             @if (Model.Reservation.StartTime > DateTime.Now)
             {
-                <a href="@Url.Action("AddParticipant", "Reservations", new {rid = Model.Reservation.Id})" cl class="btn btn-outline-success btn-sm">
+                <button type="button" class="btn btn-outline-success btn-sm" data-toggle="modal" data-target="#partModal">
                     add <i class='fa fa-plus'></i>
-                </a>
+                </button>
             }
         </h5>
         <hr />
         <ul class="list-unstyled">
+            <li>@Model.Reservation.Creator.FullName</li>
             @foreach (var u in Model.Participants)
             {
                 <li>
-                    @if (u.Id != User.Identity.GetUserId() && Model.Reservation.StartTime > DateTime.Now)
+                    @if (u.Id != Model.Reservation.CreatorId && Model.Reservation.StartTime > DateTime.Now)
                     {
-                        <a href="@Url.Action("RemoveParticipant", "Reservations", new { rid = Model.Reservation.Id, pid = u.Id })" class="btn btn-outline-danger btn-sm" onclick="return confirm('Are you sure, you want to remove this participant?');">
+                        <a href="@Url.Action("RemoveParticipant", "Reservations", new { reservationId = Model.Reservation.Id, userId = u.Id })"
+                           class="btn btn-outline-danger btn-sm" onclick="return confirm('Are you sure, you want to remove this participant?');">
                             <i class='fa fa-times'></i>
                         </a>
+                        @Html.DisplayFor(m => u.FullName)
                     }
-                    @Html.DisplayFor(m => u.FullName)
                 </li>
             }
         </ul>
@@ -132,6 +134,49 @@
     </div>
 </div>
 
+<div class="modal fade" id="partModal" tabindex="-1" role="dialog" aria-labelledby="partModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="partModalLabel">Add participant to meeting</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+
+            <div id="add-part-alert" class="alert alert-danger hidden m-3" role="alert"></div>
+            <div class="modal-body">
+                <form>
+                    <div class="form-group">
+                        <label class="form-control-label">Select user:</label>
+
+                        @if (Model.AvailableUsers.Count == 0)
+                        {
+                            <select id="new-part" class="custom-select" disabled="disabled">
+                                <option selected="selected">no available users</option>
+                            </select>
+                        }
+                        else
+                        {
+                            <select id="new-part" class="custom-select">
+                                <option selected="selected">select user</option>
+                                @foreach (var u in Model.AvailableUsers)
+                                {
+                                    <option value="@u.Id">@u.FullName</option>
+                                }
+                            </select>
+                        }
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" onclick="AddParticipant(@Model.Reservation.Id);">Save</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script>
     function ChangeDate(id) {
         var date = $("#new-date").val();
@@ -170,5 +215,24 @@
                 $("#change-desc-alert").removeClass("hidden").text(response.responseText);
             }
         });
-    }
+    };
+
+    function AddParticipant(id) {
+        var part = $("#new-part").val();
+        console.debug(part);
+        $.ajax({
+            type: "POST",
+            url: '/Reservations/AddParticipant',
+            data: { id: id, participant: part },
+            success: function () {
+                $("#partModal").modal('hide');
+                setTimeout(function () {
+                    location.reload();
+                }, 500);
+            },
+            error: function (response) {
+                $("#add-part-alert").removeClass("hidden").text(response.responseText);
+            }
+        });
+    };
 </script>

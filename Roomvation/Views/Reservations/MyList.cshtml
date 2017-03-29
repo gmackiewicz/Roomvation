@@ -10,7 +10,6 @@
 
 <table class="table">
     <tr>
-        <th></th>
         <th>
             @Html.DisplayNameFor(model => reservationModel.CreationDate)
         </th>
@@ -33,11 +32,6 @@
     {
         <tr>
             <td>
-                <a href="@Url.Action("Details", "Reservations", new { id = item.Id })" class="btn btn-outline-info btn-sm">
-                    <i class='fa fa-search'></i>
-                </a>
-            </td>
-            <td>
                 @Html.DisplayFor(modelItem => item.CreationDate)
             </td>
             <td>
@@ -50,21 +44,15 @@
                 @item.MeetingDescription.Substring(0, Math.Min(item.MeetingDescription.Length, 50))
             </td>
             <td>
-                @foreach (var p in Model.Participations)
-                {
-                    if (p.ReservationId == item.Id)
-                    {
-                        @Html.Raw($"{p.Participant.FullName}")<br />
-                    }
-                }
+                @Model.Participations.Count(p => p.ReservationId == item.Id)
             </td>
             <td>
-                @if (item.StartTime > DateTime.Now)
-                {
-                    <a href="@Url.Action("Cancel", "Reservations", new { id = item.Id })" class="btn btn-outline-danger btn-sm" onclick="return confirm('Are you sure, you want to cancel this reservation?');">
-                        <i class='fa fa-times'></i>
-                    </a>
-                }
+                <a href="@Url.Action("Details", "Reservations", new { id = item.Id })" class="btn btn-outline-info btn-sm">
+                    <i class='fa fa-search'></i>
+                </a>
+                <a href="@Url.Action("Cancel", "Reservations", new { id = item.Id })" class="btn btn-outline-danger btn-sm" onclick="return confirm('Are you sure, you want to cancel this reservation?');">
+                    <i class='fa fa-times'></i>
+                </a>
             </td>
         </tr>
     }
