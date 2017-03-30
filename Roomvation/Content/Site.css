@@ -44,3 +44,8 @@ thead th {
 tbody > tr {
     text-align: center;
 }
+
+.inline {
+    display: inline-block !important;
+    max-width: 100px;
+}
