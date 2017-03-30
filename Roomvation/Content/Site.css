@@ -33,6 +33,14 @@ textarea {
     max-width: 200px;
 }
 
-tbody > tr:first-of-type {
-    background: red;
+#future-reservations tbody > tr:first-of-type {
+    background: #effff5;
+}
+
+thead th {
+    text-align: center;
+}
+
+tbody > tr {
+    text-align: center;
 }

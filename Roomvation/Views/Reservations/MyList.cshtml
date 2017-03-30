@@ -9,52 +9,54 @@
 <h2>Your reservations @Html.ActionLink("Create new", "Create", null, new { @class = "btn btn-outline-success" })</h2>
 
 <table class="table">
-    <tr>
-        <th>
-            @Html.DisplayNameFor(model => reservationModel.CreationDate)
-        </th>
-        <th>
-            @Html.DisplayNameFor(model => reservationModel.Date)
-        </th>
-        <th>
-            @Html.DisplayNameFor(model => reservationModel.MeetingTime)
-        </th>
-        <th>
-            @Html.DisplayNameFor(model => reservationModel.MeetingDescription)
-        </th>
-        <th>
-            @Html.DisplayNameFor(model => model.Participations)
-        </th>
-        <th></th>
-    </tr>
-
-    @foreach (var item in Model.Reservations)
-    {
+    <thead>
         <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.CreationDate)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Date)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.MeetingTime)
-            </td>
-            <td class="wrap-words">
-                @Html.DisplayFor(modelItem => item.MeetingDescription)
-            </td>
-            <td>
-                @Model.Participations.Count(p => p.ReservationId == item.Id)
-            </td>
-            <td>
-                <a href="@Url.Action("Details", "Reservations", new { id = item.Id })" class="btn btn-outline-info btn-sm">
-                    <i class='fa fa-search'></i>
-                </a>
-                <a href="@Url.Action("Cancel", "Reservations", new { id = item.Id })" class="btn btn-outline-danger btn-sm" onclick="return confirm('Are you sure, you want to cancel this reservation?');">
-                    <i class='fa fa-times'></i>
-                </a>
-            </td>
+            <th>
+                @Html.DisplayNameFor(model => reservationModel.CreationDate)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => reservationModel.Date)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => reservationModel.MeetingTime)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => reservationModel.MeetingDescription)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Participations)
+            </th>
+            <th></th>
         </tr>
-    }
-
+    </thead>
+    <tbody>
+        @foreach (var item in Model.Reservations)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.CreationDate)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Date)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.MeetingTime)
+                </td>
+                <td class="wrap-words">
+                    @Html.DisplayFor(modelItem => item.MeetingDescription)
+                </td>
+                <td>
+                    @Model.Participations.Count(p => p.ReservationId == item.Id)
+                </td>
+                <td>
+                    <a href="@Url.Action("Details", "Reservations", new {id = item.Id})" class="btn btn-outline-info btn-sm">
+                        <i class='fa fa-search'></i>
+                    </a>
+                    <a href="@Url.Action("Cancel", "Reservations", new {id = item.Id})" class="btn btn-outline-danger btn-sm" onclick="return confirm('Are you sure, you want to cancel this reservation?');">
+                        <i class='fa fa-times'></i>
+                    </a>
+                </td>
+            </tr>
+        }
+    </tbody>
 </table>
