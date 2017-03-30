@@ -14,8 +14,7 @@
     var count = 4;
     var countdown = setInterval(function () {
         $("#countdown").html("Redirecting to home page in " + count + " seconds...");
-        if (count == 0) {
-            clearInterval(countdown);
+        if (!count) {
             location.href = '/';
         }
         count--;
