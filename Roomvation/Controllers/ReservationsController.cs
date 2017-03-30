@@ -72,7 +72,7 @@ namespace Roomvation.Controllers
 
             var model = new ReservationsListViewModel
             {
-                Reservations = usersReservations.ToList().OrderBy(r => r.Date),
+                Reservations = usersReservations.ToList().OrderBy(r => r.StartTime),
                 Participations = participations.ToList()
             };
 
@@ -119,7 +119,6 @@ namespace Roomvation.Controllers
                 return View(model);
             }
             model.CreationDate = now;
-
             _context.Reservations.Add(model);
 
             var users = User.Identity.GetUserId();
@@ -144,8 +143,7 @@ namespace Roomvation.Controllers
                 _context.ReservationParticipants.Add(participation);
             }
         }
-
-
+        
         public ActionResult Details(int id = 0)
         {
             var userId = User.Identity.GetUserId();

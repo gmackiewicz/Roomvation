@@ -42,7 +42,7 @@ namespace Roomvation.Controllers
                 return RedirectToAction("Index", "Reservations");
 
             var viewModel = new UsersViewModel();
-            var users = _context.Users.ToList();
+            var users = _context.Users.OrderBy(u => u.LastName).ToList();
             viewModel.Users = users;
             return View(viewModel);
         }
