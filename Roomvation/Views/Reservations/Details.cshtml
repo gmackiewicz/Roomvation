@@ -12,7 +12,7 @@
         <h4>@Html.DisplayNameFor(m => m.Reservation.Date)</h4>
         <h6 id="reservation-date">@Html.DisplayFor(m => m.Reservation.Date)</h6>
         <h4 class="mt-3">@Html.DisplayNameFor(m => m.Reservation.MeetingTime)</h4>
-        <h6>@Html.DisplayFor(m => m.Reservation.StartTime) - @Html.DisplayFor(m => m.Reservation.EndTime)</h6>
+        <h6 id="reservation-time">@Html.DisplayFor(m => m.Reservation.StartTime) - @Html.DisplayFor(m => m.Reservation.EndTime)</h6>
     </div>
 
     <div class="d-flex align-items-center flex-column col-4">
@@ -41,7 +41,7 @@
             }
         </h5>
         <hr />
-        @Html.DisplayFor(m => m.Reservation.MeetingDescription)
+        <div id="js-description" class="wrap-words">@Html.DisplayFor(m => m.Reservation.MeetingDescription)</div>
     </div>
     <div class="col-4">
         <h5>
@@ -185,19 +185,34 @@
 </div>
 
 <script>
+    var date = $("#new-date").val();
+    var start = $("#new-start").val();
+    var end = $("#new-end").val();
+    var test = new Date(date);
+    var newDate = test.toString('dd.MM.yyyy');
     function ChangeDate(id) {
-        var date = $("#new-date").val();
-        var start = $("#new-start").val();
-        var end = $("#new-end").val();
+        date = $("#new-date").val();
+        start = $("#new-start").val();
+        end = $("#new-end").val();
+        test = new Date(date);
+        newDate = test.toString('dd.MM.yyyy');
+        console.debug(test);
+        console.debug(newDate);
+        console.debug(date);
+        console.debug(start);
+        console.debug(end);
         $.ajax({
             type: "POST",
             url: '/Reservations/ChangeDate',
             data: { id: id, newDate: date, newStart: start, newEnd: end },
             success: function () {
                 $("#dateModal").modal('hide');
-                setTimeout(function () {
-                    location.reload();
-                }, 1000);
+                //
+                $("#reservation-date").html(moment(test).format("DD.MM.YYYY"));
+                $("#reservation-time").html(start + " - " + end);
+                //setTimeout(function () {
+                //    location.reload();
+                //}, 1000);
             },
             error: function (response) {
                 $("#change-date-alert").removeClass("hidden").text(response.responseText);
@@ -214,9 +229,10 @@
             data: { id: id, description: desc },
             success: function () {
                 $("#descModal").modal('hide');
-                setTimeout(function () {
-                    location.reload();
-                }, 1000);
+                $("#js-description").html(desc);
+                //setTimeout(function () {
+                //    location.reload();
+                //}, 1000);
             },
             error: function (response) {
                 $("#change-desc-alert").removeClass("hidden").text(response.responseText);

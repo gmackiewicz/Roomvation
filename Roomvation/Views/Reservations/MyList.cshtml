@@ -40,8 +40,8 @@
             <td>
                 @Html.DisplayFor(modelItem => item.MeetingTime)
             </td>
-            <td>
-                @item.MeetingDescription.Substring(0, Math.Min(item.MeetingDescription.Length, 50))
+            <td class="wrap-words">
+                @Html.DisplayFor(modelItem => item.MeetingDescription)
             </td>
             <td>
                 @Model.Participations.Count(p => p.ReservationId == item.Id)

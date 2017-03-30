@@ -27,3 +27,12 @@ textarea {
 .hidden {
     display: none;
 }
+
+.wrap-words {
+    word-wrap: break-word;
+    max-width: 200px;
+}
+
+tbody > tr:first-of-type {
+    background: red;
+}
