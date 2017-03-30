@@ -7,16 +7,17 @@
 <hgroup>
     <h2 class="text-danger">Account inactive.</h2>
     <h4 class="text-danger">This account has not been activated by Administrator. Please try again later.</h4>
-    <h6 class="mt-5 ml-5" id="countdown">Redirecting to home page in 5 seconds...</h6>
+    <h6 class="mt-5 ml-5" id="countdown">Redirecting to home page in <span class='text-danger'>5</span> seconds...</h6>
 </hgroup>
 
 <script>
-    var count = 4;
-    var countdown = setInterval(function () {
-        $("#countdown").html("Redirecting to home page in " + count + " seconds...");
+    var count = 5;
+    setInterval(function () {
+        count--;
+        $("#countdown").html("Redirecting to home page in <span class='text-danger'>" + count + "</span> seconds...");
         if (!count) {
+            $("#countdown").html("Redirecting now!");
             location.href = '/';
         }
-        count--;
     }, 1000);
 </script>
