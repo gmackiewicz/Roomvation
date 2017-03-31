@@ -2,11 +2,11 @@
 @model Roomvation.Models.ReservationsViewModels.ReservationsListViewModel
 
 @{
-    ViewBag.Title = "MyList";
+    ViewBag.Title = "Your reservations";
     var reservationModel = new Reservation();
 }
 
-<h2>Your reservations @Html.ActionLink("Create new", "Create", null, new { @class = "btn btn-outline-success" })</h2>
+<h2>@ViewBag.Title @Html.ActionLink("Create new", "Create", null, new { @class = "btn btn-outline-success" })</h2>
 
 <table class="table">
     <thead>

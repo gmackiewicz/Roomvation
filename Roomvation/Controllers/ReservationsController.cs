@@ -8,8 +8,10 @@ using System.Data.Entity.Migrations;
 using System.Data.Entity.Validation;
 using System.Linq;
 using System.Net;
+using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
+using Roomvation.Utilities;
 
 namespace Roomvation.Controllers
 {
@@ -95,7 +97,7 @@ namespace Roomvation.Controllers
         // POST: Reservations/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create(Reservation model)
+        public async Task<ActionResult> Create(Reservation model)
         {
             if (!ModelState.IsValid)
             {
@@ -111,11 +113,11 @@ namespace Roomvation.Controllers
                 .AddMinutes(model.EndTime.Minute);
 
             var now = DateTime.Now;
-            var dateError = CheckDateForErrors(0, model.StartTime, model.EndTime);
-            if (dateError)
+
+            var error = VerifyDate(0, model.StartTime, model.EndTime);
+            if (error != DateErrorStatus.Ok)
             {
-                ViewBag.Error = "Your new reservation tries to be in the past, or collides with another reservation. Fix it!";
-                ViewBag.SelectedUser = new SelectList(_context.Users, "Id", "FullName");
+                ViewBag.Error = ResolveErrorMessage(error);
                 return View(model);
             }
             model.CreationDate = now;
@@ -124,7 +126,7 @@ namespace Roomvation.Controllers
             var users = User.Identity.GetUserId();
             AddParticipationsFor(model.Id, users);
 
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
             return RedirectToAction("Details", "Reservations", new { id = model.Id });
         }
 
@@ -143,7 +145,7 @@ namespace Roomvation.Controllers
                 _context.ReservationParticipants.Add(participation);
             }
         }
-        
+
         public ActionResult Details(int id = 0)
         {
             var userId = User.Identity.GetUserId();
@@ -174,7 +176,7 @@ namespace Roomvation.Controllers
             return View(model);
         }
 
-        public ActionResult Cancel(int id = 0)
+        public async Task<ActionResult> Cancel(int id = 0)
         {
             var user = User.Identity.GetUserId();
             var reservation = _context.Reservations.Where(r => r.Id == id).Include(r => r.Creator).FirstOrDefault();
@@ -184,13 +186,13 @@ namespace Roomvation.Controllers
             }
 
             _context.Reservations.Remove(reservation);
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
 
             return RedirectToAction("MyList", "Reservations");
         }
 
         [HttpPost]
-        public ActionResult ChangeDate(int id, string newDate, string newStart, string newEnd)
+        public async Task<JsonResult> ChangeDate(int id, string newDate, string newStart, string newEnd)
         {
             var reservation = _context.Reservations.FirstOrDefault(r => r.Id == id);
             if (reservation == null)
@@ -215,32 +217,51 @@ namespace Roomvation.Controllers
             }
 
             var startTime = date
-                    .AddHours(start.Hour)
-                    .AddMinutes(start.Minute);
+                .AddHours(start.Hour)
+                .AddMinutes(start.Minute);
 
             var endTime = date
                 .AddHours(end.Hour)
                 .AddMinutes(end.Minute);
 
-            var dateError = CheckDateForErrors(id, startTime, endTime);
-            if (dateError)
+            var error = VerifyDate(0, startTime, endTime);
+            if (error != DateErrorStatus.Ok)
             {
                 Response.StatusCode = (int)HttpStatusCode.Conflict;
-                return Json("Provided date or time caused conlicts. Check if it is not the past date.");
+                var message = ResolveErrorMessage(error);
+                return Json(message);
             }
 
             reservation.Date = date;
             reservation.StartTime = startTime;
             reservation.EndTime = endTime;
             _context.Reservations.AddOrUpdate(reservation);
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
 
             Response.StatusCode = (int)HttpStatusCode.OK;
             return Json("Reservation date has been successfully changed.");
         }
 
+        private string ResolveErrorMessage(DateErrorStatus error)
+        {
+            var result = string.Empty;
+            switch (error)
+            {
+                case DateErrorStatus.Past:
+                    result = "Reservation cannot start in the past!";
+                    break;
+                case DateErrorStatus.IncorrectTime:
+                    result = "Meeting cannot end before it starts!";
+                    break;
+                case DateErrorStatus.Conflict:
+                    result = "This date and time collides with another reservation!";
+                    break;
+            }
+            return result;
+        }
+
         [HttpPost]
-        public ActionResult ChangeDescription(int id, string description)
+        public async Task<JsonResult> ChangeDescription(int id, string description)
         {
             var reservation = _context.Reservations.FirstOrDefault(r => r.Id == id);
             if (reservation == null)
@@ -252,7 +273,7 @@ namespace Roomvation.Controllers
             {
                 reservation.MeetingDescription = description;
                 _context.Reservations.AddOrUpdate(reservation);
-                _context.SaveChanges();
+                await _context.SaveChangesAsync();
             }
             catch (DbEntityValidationException exception)
             {
@@ -265,7 +286,7 @@ namespace Roomvation.Controllers
         }
 
         [HttpPost]
-        public ActionResult AddParticipant(int id, string participant)
+        public async Task<JsonResult> AddParticipant(int id, string participant)
         {
             var reservation = _context.Reservations.FirstOrDefault(r => r.Id == id);
             var user = _context.Users.FirstOrDefault(u => u.Id == participant);
@@ -282,11 +303,37 @@ namespace Roomvation.Controllers
             };
 
             _context.ReservationParticipants.AddOrUpdate(participation);
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
 
             Response.StatusCode = (int)HttpStatusCode.OK;
             return Json("User has been successfully added to the meeting.");
         }
+        private DateErrorStatus VerifyDate(int id, DateTime startTime, DateTime endTime)
+        {
+            var now = DateTime.Now;
+            if (startTime < now)
+            {
+                return DateErrorStatus.Past;
+            }
+            if (startTime >= endTime)
+            {
+                return DateErrorStatus.IncorrectTime;
+            }
+
+            var other = _context.Reservations.Where(r => r.Id != id).ToList();
+
+            var conflict =
+                other.Any(
+                    r =>
+                        (startTime >= r.StartTime && startTime < r.EndTime) ||
+                        (startTime <= r.StartTime && endTime > r.StartTime));
+            if (conflict)
+            {
+                return DateErrorStatus.Conflict;
+            }
+            return DateErrorStatus.Ok;
+        }
+
 
         private bool CheckDateForErrors(int id, DateTime startTime, DateTime endTime)
         {
@@ -306,14 +353,14 @@ namespace Roomvation.Controllers
             return result;
         }
 
-        public ActionResult RemoveParticipant(int reservationId, string userId)
+        public async Task<ActionResult> RemoveParticipant(int reservationId, string userId)
         {
             var participation = _context.ReservationParticipants
                 .FirstOrDefault(rp => rp.ReservationId == reservationId && rp.ParticipantId == userId);
             if (participation != null)
             {
                 _context.ReservationParticipants.Remove(participation);
-                _context.SaveChanges();
+                await _context.SaveChangesAsync();
             }
 
             return RedirectToAction("Details", new { id = reservationId });

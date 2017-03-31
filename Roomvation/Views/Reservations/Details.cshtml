@@ -2,7 +2,7 @@
 @{
     ViewBag.Title = "Reservation details";
 }
-<h3>Reservation details</h3>
+<h3>@ViewBag.Title</h3>
 <h6>created: @Html.DisplayFor(m => m.Reservation.CreationDate)</h6>
 <h6>by: @Html.DisplayFor(m => m.Reservation.Creator.FullName)</h6>
 <hr />
@@ -197,7 +197,7 @@
                 $("#reservation-time").html(start + " - " + end);
             },
             error: function (response) {
-                $("#change-date-alert").removeClass("hidden").text(response.responseText);
+                $("#change-date-alert").removeClass("hidden").text(response.responseText.slice(1, -1));
             }
         });
     };
@@ -213,7 +213,7 @@
                 $("#js-description").html(desc);
             },
             error: function (response) {
-                $("#change-desc-alert").removeClass("hidden").text(response.responseText);
+                $("#change-desc-alert").removeClass("hidden").text(response.responseText.slice(1, -1));
             }
         });
     };
@@ -231,7 +231,7 @@
                 }, 500);
             },
             error: function (response) {
-                $("#add-part-alert").removeClass("hidden").text(response.responseText);
+                $("#add-part-alert").removeClass("hidden").text(response.responseText.slice(1, -1));
             }
         });
     };

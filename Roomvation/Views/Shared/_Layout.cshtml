@@ -27,7 +27,7 @@
                         @if (Request.IsAuthenticated)
                         {
                             <li class="nav-item">
-                                @Html.ActionLink("My reservations", "MyList", "Reservations", null, new { @class = "nav-link" })
+                                @Html.ActionLink("Your reservations", "MyList", "Reservations", null, new { @class = "nav-link" })
                             </li>
                             <li class="nav-item">
                                 @if (User.IsInRole("Administrators"))
