@@ -2,6 +2,7 @@
 using Microsoft.AspNet.Identity.Owin;
 using Roomvation.Models;
 using Roomvation.Models.ReservationsViewModels;
+using Roomvation.Utilities;
 using System;
 using System.Data.Entity;
 using System.Data.Entity.Migrations;
@@ -11,7 +12,6 @@ using System.Net;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
-using Roomvation.Utilities;
 
 namespace Roomvation.Controllers
 {
@@ -224,7 +224,7 @@ namespace Roomvation.Controllers
                 .AddHours(end.Hour)
                 .AddMinutes(end.Minute);
 
-            var error = VerifyDate(0, startTime, endTime);
+            var error = VerifyDate(id, startTime, endTime);
             if (error != DateErrorStatus.Ok)
             {
                 Response.StatusCode = (int)HttpStatusCode.Conflict;

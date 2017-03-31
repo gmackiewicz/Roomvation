@@ -59,10 +59,13 @@
             @foreach (var u in Model.Participants)
             {
                 <li>
-                    @if (u.Id != Model.Reservation.CreatorId && Model.Reservation.StartTime > DateTime.Now)
+                    @if (u.Id != Model.Reservation.CreatorId)
                     {
-                        <a href="@Url.Action("RemoveParticipant", "Reservations", new { reservationId = Model.Reservation.Id, userId = u.Id })"
-                           class="text-danger" onclick="return confirm('Are you sure, you want to remove this participant?');"><i class='fa fa-times'></i></a>
+                        if (Model.Reservation.StartTime > DateTime.Now)
+                        {
+                            <a href="@Url.Action("RemoveParticipant", "Reservations", new {reservationId = Model.Reservation.Id, userId = u.Id})"
+                               class="text-danger" onclick="return confirm('Are you sure, you want to remove this participant?');"><i class='fa fa-times'></i></a>
+                        }
                         @Html.DisplayFor(m => u.FullName)
                     }
                 </li>

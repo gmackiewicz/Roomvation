@@ -30,7 +30,6 @@ textarea {
 
 .wrap-words {
     word-wrap: break-word;
-    max-width: 200px;
 }
 
 #future-reservations tbody > tr:first-of-type {
